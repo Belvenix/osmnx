@@ -576,6 +576,10 @@ def _create_graph(response_jsons, retain_all=False, bidirectional=False):
     # add each osm way (ie, a path of edges) to the graph
     _add_paths(G, paths.values(), bidirectional)
 
+    empty_nodes = [node for node, data in G.nodes.items() if 'x' not in data.keys() or 'y' not in data.keys() ]
+    for node_id in empty_nodes:
+        G.remove_node(node_id)
+
     # retain only the largest connected component if retain_all is False
     if not retain_all:
         G = utils_graph.get_largest_component(G)

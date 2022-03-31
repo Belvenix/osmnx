@@ -130,7 +130,7 @@ def add_edge_lengths(G, precision=3):
     y = G.nodes(data="y")
     try:
         # two-dimensional array of coordinates: y0, x0, y1, x1
-        c = np.array([(y[u], x[u], y[v], x[v]) for u, v, k in uvk])
+        c = np.array([(y[u], x[u], y[v], x[v]) for u, v, k in uvk]).astype('float64')
     except KeyError:  # pragma: no cover
         raise KeyError("some edges missing nodes, possibly due to input data clipping issue")
 
