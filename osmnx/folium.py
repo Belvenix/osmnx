@@ -222,8 +222,39 @@ def _make_folium_polyline(geom, popup_val=None, **kwargs):
         popup = None
     else:
         # folium doesn't interpret html, so can't do newlines without iframe
-        popup = folium.Popup(html=json.dumps(popup_val))
+        if type(popup_val) == dict and 'year' in popup_val.keys() and\
+                'data' in popup_val.keys() and len(popup_val['year']) == 2:
+            html = _generate_html_table(popup_val) 
+            popup = folium.Popup(html=html)
+        else:
+            popup = folium.Popup(html=json.dumps(popup_val))
 
     # create a folium polyline with attributes
-    pl = folium.PolyLine(locations=locations, popup=popup, **kwargs)
+    pl = folium.PolyLine(locations=locations, width="300px", height="100%" , popup=popup, **kwargs)
     return pl
+
+def _generate_html_table(popup_val):
+    html  = """<table class="table table-striped table-hover table-responsive" style="padding: 2vh">
+                      <tr>
+                        <th>Nazwa</th>
+                        <th>{}</th>
+                        <th>{}</th>
+                    </tr>""".format(popup_val['year'][0], popup_val['year'][1])
+    try:
+        for key, val in popup_val['data'].items():
+            if val[0] == val[1]:
+                html += """<tr>
+                            <td>{}</td>
+                            <td>{}</td>
+                            <td>{}</td>
+                            </tr>""".format(key, val[0], val[1])
+            else:
+                html += """<tr>
+                            <td style="color:black;">{}</td>
+                            <td style="color:black;">{}</td>
+                            <td style="color:blue; font-weight:bold;">{}</td>
+                            </tr>""".format(key, val[0], val[1])
+    except Exception as e:
+        html += """<tr><td colspan="2"> Error, invalid data structure </td></tr>"""
+
+    return html
