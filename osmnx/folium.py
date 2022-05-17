@@ -222,8 +222,40 @@ def _make_folium_polyline(geom, popup_val=None, **kwargs):
         popup = None
     else:
         # folium doesn't interpret html, so can't do newlines without iframe
-        popup = folium.Popup(html=json.dumps(popup_val))
+        iframe = _generate_html_table(popup_val) 
+        popup = folium.Popup(iframe, min_width=300, max_width=300)
+        #popup = folium.Popup(html=json.dumps(popup_val))
 
     # create a folium polyline with attributes
     pl = folium.PolyLine(locations=locations, popup=popup, **kwargs)
     return pl
+
+def _generate_html_table(popup_val):
+    html  = """<table style="padding: 2vh; height: 126px; width: 350px;">
+                      <caption><a href={} style="text-decoration: none; font-size: 20px" width="200px">Openstreetmaps view</a></caption>
+                      <tr>
+                        <th style="background-color: #ffff00; font-weight: normal">Years</th>
+                        <th style="background-color: #ffff00; font-weight: normal">{}</th>
+                        <th style="background-color: #ffff00; font-weight: normal">{}</th>
+                    </tr>""".format(popup_val['href'], popup_val['years'][0], popup_val['years'][1])
+    for key, val in popup_val['data'].items():
+        if val[0] is None:
+            val[0] = "Not existing"
+        if val[1] is None:
+            val[1] = "Not existed"
+        if val[0] == val[1]:
+            html += """<tr>
+                        <td style="background-color: #00bfff; font-weight:bold"><span style="color: #ffffff">{}</span></td>
+                        <td style="background-color: #ff0000"><span style="color: #ffffff">{}</span></td>
+                        <td style="background-color: #339933"><span style="color: #ffffff">{}</span></td>
+                        </tr>""".format(key, val[0], val[1])
+        else:
+            html += """<tr>
+                        <td style="background-color: #00bfff; font-weight:bold"><span style="color: #ffffff">{}</span></td>
+                        <td style="background-color: #ff0000"><span style="color: #ffffff">{}</span></td>
+                        <td style="background-color: #339933; font-weight:bolder; color:#000000;">{}</span></td>
+                        </tr>""".format(key, val[0], val[1])
+
+        
+    return folium.IFrame(html)
+

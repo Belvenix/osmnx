@@ -74,9 +74,7 @@ def graph_from_bbox(
     Notes
     -----
     You can configure the Overpass server timeout, memory allocation, and
-    other custom settings via ox.config(). Very large query areas will use the
-    utils_geo._consolidate_subdivide_geometry function to perform multiple
-    queries: see that function's documentation for caveats.
+    other custom settings via ox.config().
     """
     # convert bounding box to a polygon
     polygon = utils_geo.bbox_to_poly(north, south, east, west)
@@ -148,9 +146,7 @@ def graph_from_point(
     Notes
     -----
     You can configure the Overpass server timeout, memory allocation, and
-    other custom settings via ox.config(). Very large query areas will use the
-    utils_geo._consolidate_subdivide_geometry function to perform multiple
-    queries: see that function's documentation for caveats.
+    other custom settings via ox.config().
     """
     if dist_type not in {"bbox", "network"}:  # pragma: no cover
         raise ValueError('dist_type must be "bbox" or "network"')
@@ -238,9 +234,7 @@ def graph_from_address(
     Notes
     -----
     You can configure the Overpass server timeout, memory allocation, and
-    other custom settings via ox.config(). Very large query areas will use the
-    utils_geo._consolidate_subdivide_geometry function to perform multiple
-    queries: see that function's documentation for caveats.
+    other custom settings via ox.config().
     """
     # geocode the address string to a (lat, lng) point
     point = geocoder.geocode(query=address)
@@ -326,9 +320,7 @@ def graph_from_place(
     Notes
     -----
     You can configure the Overpass server timeout, memory allocation, and
-    other custom settings via ox.config(). Very large query areas will use the
-    utils_geo._consolidate_subdivide_geometry function to perform multiple
-    queries: see that function's documentation for caveats.
+    other custom settings via ox.config().
     """
     # create a GeoDataFrame with the spatial boundaries of the place(s)
     if isinstance(query, (str, dict)):
@@ -405,9 +397,7 @@ def graph_from_polygon(
     Notes
     -----
     You can configure the Overpass server timeout, memory allocation, and
-    other custom settings via ox.config(). Very large query areas will use the
-    utils_geo._consolidate_subdivide_geometry function to perform multiple
-    queries: see that function's documentation for caveats.
+    other custom settings via ox.config().
     """
     # verify that the geometry is valid and is a shapely Polygon/MultiPolygon
     # before proceeding
@@ -575,10 +565,12 @@ def _create_graph(response_jsons, retain_all=False, bidirectional=False):
 
     # add each osm way (ie, a path of edges) to the graph
     _add_paths(G, paths.values(), bidirectional)
-
-    empty_nodes = [node for node, data in G.nodes.items() if 'x' not in data.keys() or 'y' not in data.keys() ]
-    for node_id in empty_nodes:
-        G.remove_node(node_id)
+    #TODO check
+    empty_nodes = [node for node, data in G.nodes.items() if 'x' not in data.keys() or 'y' not in data.keys()]
+    if len(empty_nodes) > 0:
+        print("THERE ARE NODES WITHOUT X i Y data")
+    #for node_id in empty_nodes:
+    #    G.remove_node(node_id)
 
     # retain only the largest connected component if retain_all is False
     if not retain_all:
@@ -627,11 +619,11 @@ def _convert_path(element):
     -------
     path : dict
     """
+    #TODO
     path = {"osmid": element["id"]}
 
     # remove any consecutive duplicate elements in the list of nodes
     path["nodes"] = [group[0] for group in itertools.groupby(element["nodes"])]
-
     if "tags" in element:
         for useful_tag in settings.useful_tags_way:
             if useful_tag in element["tags"]:

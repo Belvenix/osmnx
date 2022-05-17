@@ -72,13 +72,35 @@ def graph_to_gdfs(G, nodes=True, edges=True, node_geometry=True, fill_edge_geome
             # geometry return it, otherwise create it using the incident nodes
             x_lookup = nx.get_node_attributes(G, "x")
             y_lookup = nx.get_node_attributes(G, "y")
+            
+            #TODO made by me
+            new_u = []
+            new_v = []
+            new_data = []
+            new_k = []
+            for pu, pv, pk, pdata in zip(u,v,k,data):
+                if "geometry" in pdata:
+                    new_u.append(pu)
+                    new_v.append(pv)
+                    new_data.append(pdata)
+                    new_k.append(pk)
+                elif pu in x_lookup and pu in y_lookup and pv in x_lookup and pv in y_lookup:
+                    new_u.append(pu)
+                    new_v.append(pv)
+                    new_data.append(pdata)
+                    new_k.append(pk)
+
+            u = new_u
+            v = new_v
+            data = new_data
+            k = new_k
 
             def make_geom(u, v, data, x=x_lookup, y=y_lookup):
                 if "geometry" in data:
                     return data["geometry"]
                 else:
                     return LineString((Point((x[u], y[u])), Point((x[v], y[v]))))
-
+            
             geom = map(make_geom, u, v, data)
             gdf_edges = gpd.GeoDataFrame(data, crs=crs, geometry=list(geom))
 
