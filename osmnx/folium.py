@@ -227,7 +227,7 @@ def _make_folium_polyline(geom, popup_val=None, **kwargs):
         #popup = folium.Popup(html=json.dumps(popup_val))
 
     # create a folium polyline with attributes
-    pl = folium.PolyLine(locations=locations, popup=popup, **kwargs)
+    pl = folium.PolyLine(locations=locations, width="300px", height="100%" , popup=popup, **kwargs)
     return pl
 
 def _generate_html_table(popup_val):
